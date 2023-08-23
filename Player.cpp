@@ -470,6 +470,7 @@ public:
 private:
     int state;
     Point m_lastCellAttacked;
+    Point centralPoint;
     vector<Point> previousAttacks;
 };
 
@@ -564,8 +565,43 @@ Point GoodPlayer::recommendAttack()
         previousAttacks.push_back(p);
         return p;
     }
-    else
+    /*
+        Plan: Have four state representing the four cardinal directions
+        - initially, we attack east by one unit
+        - if we miss east, we target west,
+        - if we hit east, we continue east
+        - same for all cardinal directions
+    */
+    else if (state == 2)
     {
+        int row = m_lastCellAttacked.r;
+        int col = m_lastCellAttacked.c + 1;
+        Point p(row, col);
+        previousAttacks.push_back(p);
+        return p;
+    }
+    else if (state == 3) {
+        int row = m_lastCellAttacked.r;
+        int col = m_lastCellAttacked.c - 1;
+        Point p(row, col);
+        previousAttacks.push_back(p);
+        return p;
+    }
+    else if (state == 4) {
+        int row = m_lastCellAttacked.r - 1;
+        int col = m_lastCellAttacked.c;
+        Point p(row, col);
+        previousAttacks.push_back(p);
+        return p;
+    }
+    else if (state == 5) {
+        int row = m_lastCellAttacked.r + 1;
+        int col = m_lastCellAttacked.c;
+        Point p(row, col);
+        previousAttacks.push_back(p);
+        return p;
+    }
+        /*
         //randomly selects a point within a 4-col radius from the point
         int row = m_lastCellAttacked.r;
         int col = m_lastCellAttacked.c - 4 + rand() % 9;
@@ -602,11 +638,13 @@ Point GoodPlayer::recommendAttack()
         previousAttacks.push_back(p2);
         return p2;
     }
+    */
 }
 
 void GoodPlayer::recordAttackResult(Point p, bool validShot, bool shotHit,
     bool shipDestroyed, int shipId)
 {
+
     if (state == 1)
     {
         m_lastCellAttacked.r = p.r;
@@ -623,20 +661,107 @@ void GoodPlayer::recordAttackResult(Point p, bool validShot, bool shotHit,
         }
         if (shotHit && !shipDestroyed && validShot && (shipId < 50))
         {
+            centralPoint.r = p.r;
+            centralPoint.c = p.c;
             state = 2;
             return;
         }
     }
-    else
+    //state 2 = attack EAST
+    else if (state == 2)
     {
         if (!shotHit && validShot && (shipId < 50))
         {
-            state = 2;
+            m_lastCellAttacked.r = centralPoint.r;
+            m_lastCellAttacked.c = centralPoint.c;
+            //target not found in east, so attack west
+            state = 3;
             return;
         }
         if (shotHit && !shipDestroyed && validShot && (shipId < 50))
         {
+            m_lastCellAttacked.r = p.r;
+            m_lastCellAttacked.c = p.c;
+            //target found in east, continue attacking east
             state = 2;
+            return;
+        }
+        if (shotHit && shipDestroyed && validShot && (shipId < 50))
+        {
+            state = 1;
+            m_lastCellAttacked.r = -1;
+            m_lastCellAttacked.c = -1;
+            return;
+        }
+    }
+    //state 3 = attack WEST
+    else if (state == 3) {
+        if (!shotHit && validShot && (shipId < 50))
+        {
+            m_lastCellAttacked.r = centralPoint.r;
+            m_lastCellAttacked.c = centralPoint.c;
+            //target not found in west, so attack north
+            state = 4;
+            return;
+        }
+        if (shotHit && !shipDestroyed && validShot && (shipId < 50))
+        {
+            m_lastCellAttacked.r = p.r;
+            m_lastCellAttacked.c = p.c;
+            //target found in west, continue attacking west
+            state = 3;
+            return;
+        }
+        if (shotHit && shipDestroyed && validShot && (shipId < 50))
+        {
+            state = 1;
+            m_lastCellAttacked.r = -1;
+            m_lastCellAttacked.c = -1;
+            return;
+        }
+    }
+    //state 4 = attack NORTH
+    else if (state == 4) {
+        if (!shotHit && validShot && (shipId < 50))
+        {
+            m_lastCellAttacked.r = centralPoint.r;
+            m_lastCellAttacked.c = centralPoint.c;
+            //target not found in north, so attack south
+            state = 4;
+            return;
+        }
+        if (shotHit && !shipDestroyed && validShot && (shipId < 50))
+        {
+            m_lastCellAttacked.r = p.r;
+            m_lastCellAttacked.c = p.c;
+            //target found in north, continue attacking north
+            state = 4;
+            return;
+        }
+        if (shotHit && shipDestroyed && validShot && (shipId < 50))
+        {
+            state = 1;
+            m_lastCellAttacked.r = -1;
+            m_lastCellAttacked.c = -1;
+            return;
+        }
+    }
+    //state 5 = attack SOUTH
+    else if (state == 5) {
+        if (!shotHit && validShot && (shipId < 50))
+        {
+            m_lastCellAttacked.r = centralPoint.r;
+            m_lastCellAttacked.c = centralPoint.c;
+            //target not found in south, so stay attacking south?
+            state = 4;
+            return;
+        }
+        if (shotHit && !shipDestroyed && validShot && (shipId < 50))
+        {
+            m_lastCellAttacked.r = p.r;
+            m_lastCellAttacked.c = p.c;
+            //target found in south, so stay attacking south
+            state = 4;
             return;
         }
         if (shotHit && shipDestroyed && validShot && (shipId < 50))

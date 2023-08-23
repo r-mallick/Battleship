@@ -1,2 +1,3 @@
-﻿  main.cpp
+﻿  Player.cpp
+C:\Users\Dave\source\repos\Battleship\Battleship\Player.cpp(642): warning C4715: 'GoodPlayer::recommendAttack': not all control paths return a value
   Battleship.vcxproj -> C:\Users\Dave\source\repos\Battleship\Debug\Battleship.exe
