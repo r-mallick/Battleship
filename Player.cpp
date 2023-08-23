@@ -577,29 +577,61 @@ Point GoodPlayer::recommendAttack()
         int row = m_lastCellAttacked.r;
         int col = m_lastCellAttacked.c + 1;
         Point p(row, col);
-        previousAttacks.push_back(p);
-        return p;
+        if (findPreviousAttack(p)) {
+            m_lastCellAttacked.r = centralPoint.r;
+            m_lastCellAttacked.c = centralPoint.c;
+            state = 3;
+            return recommendAttack();
+        }
+        else {
+            previousAttacks.push_back(p);
+            return p;
+        }
     }
     else if (state == 3) {
         int row = m_lastCellAttacked.r;
         int col = m_lastCellAttacked.c - 1;
         Point p(row, col);
-        previousAttacks.push_back(p);
-        return p;
+        if (findPreviousAttack(p)) {
+            m_lastCellAttacked.r = centralPoint.r;
+            m_lastCellAttacked.c = centralPoint.c;
+            state = 4;
+            return recommendAttack();
+        }
+        else {
+            previousAttacks.push_back(p);
+            return p;
+        }
     }
     else if (state == 4) {
         int row = m_lastCellAttacked.r - 1;
         int col = m_lastCellAttacked.c;
         Point p(row, col);
-        previousAttacks.push_back(p);
-        return p;
+        if (findPreviousAttack(p)) {
+            m_lastCellAttacked.r = centralPoint.r;
+            m_lastCellAttacked.c = centralPoint.c;
+            state = 5;
+            return recommendAttack();
+        }
+        else {
+            previousAttacks.push_back(p);
+            return p;
+        }
     }
     else if (state == 5) {
         int row = m_lastCellAttacked.r + 1;
         int col = m_lastCellAttacked.c;
         Point p(row, col);
-        previousAttacks.push_back(p);
-        return p;
+        if (findPreviousAttack(p)) {
+            m_lastCellAttacked.r = centralPoint.r;
+            m_lastCellAttacked.c = centralPoint.c;
+            state = 1;
+            return recommendAttack();
+        }
+        else {
+            previousAttacks.push_back(p);
+            return p;
+        }
     }
         /*
         //randomly selects a point within a 4-col radius from the point
@@ -727,7 +759,7 @@ void GoodPlayer::recordAttackResult(Point p, bool validShot, bool shotHit,
             m_lastCellAttacked.r = centralPoint.r;
             m_lastCellAttacked.c = centralPoint.c;
             //target not found in north, so attack south
-            state = 4;
+            state = 5;
             return;
         }
         if (shotHit && !shipDestroyed && validShot && (shipId < 50))
@@ -752,8 +784,8 @@ void GoodPlayer::recordAttackResult(Point p, bool validShot, bool shotHit,
         {
             m_lastCellAttacked.r = centralPoint.r;
             m_lastCellAttacked.c = centralPoint.c;
-            //target not found in south, so stay attacking south?
-            state = 4;
+            //target not found in south, resume checkerboard approach
+            state = 1;
             return;
         }
         if (shotHit && !shipDestroyed && validShot && (shipId < 50))
@@ -761,7 +793,7 @@ void GoodPlayer::recordAttackResult(Point p, bool validShot, bool shotHit,
             m_lastCellAttacked.r = p.r;
             m_lastCellAttacked.c = p.c;
             //target found in south, so stay attacking south
-            state = 4;
+            state = 5;
             return;
         }
         if (shotHit && shipDestroyed && validShot && (shipId < 50))

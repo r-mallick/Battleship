@@ -19,11 +19,11 @@ bool addStandardShips(Game& g)
 
 int main()
 {
-    const int NTRIALS = 1;
+    const int NTRIALS = 20;
 
     cout << "Select one of these choices for an example of the game:" << endl;
     cout << "  1.  A mini-game between two mediocre players" << endl;
-    cout << "  2.  A mediocre player against a human player" << endl;
+    cout << "  2.  A good player against a human player" << endl;
     cout << "  3.  A " << NTRIALS
         << "-game match between a good and a mediocre player, with no pauses"
         << endl;
@@ -49,8 +49,8 @@ int main()
     {
         Game g(10, 10);
         addStandardShips(g);
-        Player* p1 = createPlayer("mediocre", "Mediocre Midori", g);
-        Player* p2 = createPlayer("human", "Shuman the Human", g);
+        Player* p1 = createPlayer("good", "Good George", g);
+        Player* p2 = createPlayer("human", "Rahul the Human", g);
         g.play(p1, p2);
         delete p1;
         delete p2;
