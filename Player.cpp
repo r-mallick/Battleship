@@ -539,6 +539,7 @@ Point GoodPlayer::recommendAttack()
     if (state == 1)
     {
         //checkerboard pattern
+        int count = 0;
         int row = randInt(game().rows());
         int col;
         if (row % 2 == 0) {
@@ -561,6 +562,19 @@ Point GoodPlayer::recommendAttack()
             }
             p.r = row;
             p.c = col;
+            count++;
+            if (count >= 50) {
+                col = randInt(game().cols());
+                if (col % 2 == 0) {
+                    row = 1 + (2 * rand()) % 10;
+                }
+                else
+                {
+                    row = (2 * rand()) % (game().cols());
+                }
+                p.r = row;
+                p.c = col;
+            }
         }
         previousAttacks.push_back(p);
         return p;
